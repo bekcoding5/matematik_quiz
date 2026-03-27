@@ -6,6 +6,7 @@ import 'package:matematik_quiz/widgets/glass_box.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
+
   @override
   State<SetupScreen> createState() => _SetupScreenState();
 }
@@ -48,34 +49,45 @@ class _SetupScreenState extends State<SetupScreen> {
               (v) => setState(() => _count = v),
             ),
             const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              height: 65,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.cyanAccent,
-                  foregroundColor: Colors.black,
-                ),
-                onPressed: () async {
-                  await player.play(AssetSource('sounds/click.wav'));
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => GameScreen(
-                        diff: _diff,
-                        time: _time,
-                        totalQuestions: _count,
-                      ),
-                    ),
-                  );
-                },
-                child: const Text(
-                  "O'YINNI BOSHLASH",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
+
+            /// 🔥 YANGI BUTTON (MainScreen bilan bir xil)
+            _startBtn(context),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// ✅ Clean reusable start button
+  Widget _startBtn(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await player.play(AssetSource('sounds/click.wav'));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => GameScreen(
+              diff: _diff,
+              time: _time,
+              totalQuestions: _count,
+            ),
+          ),
+        );
+      },
+      child: GlassBox(
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 60,
+            vertical: 20,
+          ),
+          child: const Text(
+            "O'YINNI BOSHLASH",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2,
+            ),
+          ),
         ),
       ),
     );
