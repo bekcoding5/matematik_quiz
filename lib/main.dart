@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:matematik_quiz/class/question.dart';
 import 'package:matematik_quiz/screens/set_up.dart';
+import 'package:matematik_quiz/screens/statistics_screen.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
 
 final player = AudioPlayer();
 
 class MathEngine {
   final Random _rnd = Random();
+
   Question generate(String difficulty) {
     int depth = difficulty == 'Oson' ? 1 : (difficulty == 'Qiyin' ? 3 : 2);
     int maxNum = difficulty == 'Oson' ? 10 : (difficulty == 'Qiyin' ? 50 : 20);
-
     return _generateRecursive(depth, maxNum);
   }
 
@@ -41,9 +42,9 @@ class MathEngine {
           break;
         case 3:
           int divisor = _rnd.nextInt(5) + 2;
-
-          expression = "(${currentResult * divisor} / $divisor)";
-
+          int newVal = currentResult * divisor;
+          expression = "($newVal / $divisor)";
+          currentResult = newVal;
           break;
       }
     }
@@ -80,6 +81,7 @@ void main() {
 
 class MathMasterApp extends StatelessWidget {
   const MathMasterApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -133,9 +135,20 @@ class MainScreen extends StatelessWidget {
               _actionBtn(
                 context,
                 "START",
+                Icons.play_arrow_rounded,
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SetupScreen()),
+                ),
+              ),
+              const SizedBox(height: 16),
+              _actionBtn(
+                context,
+                "STATISTIKA",
+                Icons.bar_chart_rounded,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const StatisticsScreen()),
                 ),
               ),
             ],
@@ -145,7 +158,12 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _actionBtn(BuildContext context, String label, VoidCallback onTap) {
+  Widget _actionBtn(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: () async {
         await player.play(AssetSource('sounds/click.wav'));
@@ -154,14 +172,21 @@ class MainScreen extends StatelessWidget {
       },
       child: GlassBox(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 20),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 2,
-            ),
+          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 18),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: Colors.cyanAccent, size: 22),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+            ],
           ),
         ),
       ),
