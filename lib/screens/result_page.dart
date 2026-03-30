@@ -1,25 +1,23 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:matematik_quiz/main.dart'; // Global player uchun
 import 'package:matematik_quiz/class/question.dart';
-import 'package:matematik_quiz/class/stats_printer.dart';
-import 'package:matematik_quiz/main.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
-
 class ResultPage extends StatelessWidget {
   final int score;
   final List<WrongAnswer> wrongs;
   final int totalQuestions;
-  final int coins; // Bu yerda qiymat GameScreen'dan keladi
+  final int coins;
 
   const ResultPage({
     super.key,
     required this.score,
     required this.wrongs,
     required this.totalQuestions,
-    required this.coins, // 'required' qilish xatolikni oldini oladi
+    required this.coins,
   });
 
-  // Xatolarni ko'rsatish funksiyasi (O'zgarishsiz qoldi)
+  // Xatolarni ko'rsatish (O'zgarishsiz qoldi)
   void _showWrongs(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -71,30 +69,45 @@ class ResultPage extends StatelessWidget {
                   const Text("O'YIN YAKUNLANDI", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Colors.white60)),
                   const SizedBox(height: 25),
 
-                  // Foizli aylana (Stats)
-                  Stack(
-                    alignment: Alignment.center,
+                  // --- FOIZ (Siz aytgandek oddiy raqam ko'rinishida) ---
+                Column(
                     children: [
-                      SizedBox(
-                        width: 120,
-                        height: 120,
-                        child: CustomPaint(painter: StatsPainter(successPercent)),
+                      Text(
+                        "${successPercent.toInt()}%",
+                        style: const TextStyle(
+                          fontSize: 42, // Ball bilan bir xil o'lcham
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
-                      Text("${successPercent.toInt()}%", style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
+                      const Text(
+                        "ANIQLIK DARAJASI",
+                        style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70),
+                      ),
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
                   
                   // Score (Ball)
-                  Text("$score", style: const TextStyle(fontSize: 50, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
-                  const Text("UMUMIY BALL", style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70)),
+                  Text(
+                    "$score", 
+                    style: const TextStyle(
+                      fontSize: 42, // Foiz bilan bir xil o'lcham
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.cyanAccent
+                    )
+                  ),
+                  const Text(
+                    "UMUMIY BALL", 
+                    style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70)
+                  ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
 
                   // --- COINLAR EKRANI ---
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.amber.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
