@@ -1,13 +1,16 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:matematik_quiz/main.dart'; // Global player uchun
+import 'package:matematik_quiz/main.dart';
 import 'package:matematik_quiz/class/question.dart';
+import 'package:matematik_quiz/class/data_manager.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
-class ResultPage extends StatelessWidget {
+
+class ResultPage extends StatefulWidget {
   final int score;
   final List<WrongAnswer> wrongs;
   final int totalQuestions;
   final int coins;
+  final String difficulty;
 
   const ResultPage({
     super.key,
@@ -15,9 +18,29 @@ class ResultPage extends StatelessWidget {
     required this.wrongs,
     required this.totalQuestions,
     required this.coins,
+    required this.difficulty,
   });
 
-  // Xatolarni ko'rsatish (O'zgarishsiz qoldi)
+  @override
+  State<ResultPage> createState() => _ResultPageState();
+}
+
+class _ResultPageState extends State<ResultPage> {
+  @override
+  void initState() {
+    super.initState();
+    _saveStats();
+  }
+
+  Future<void> _saveStats() async {
+    int correctCount = widget.totalQuestions - widget.wrongs.length;
+    await DataManager.saveGameStats(
+      difficulty: widget.difficulty,
+      correct: correctCount,
+      total: widget.totalQuestions,
+    );
+  }
+
   void _showWrongs(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -30,15 +53,29 @@ class ResultPage extends StatelessWidget {
             children: [
               const Text(
                 "XATOLAR TAHLILI",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.cyanAccent),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.cyanAccent,
+                ),
               ),
               const Divider(color: Colors.white24),
               Expanded(
                 child: ListView.builder(
-                  itemCount: wrongs.length,
+                  itemCount: widget.wrongs.length,
                   itemBuilder: (context, i) => ListTile(
-                    title: Text(wrongs[i].question, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                    subtitle: Text("Siz: ${wrongs[i].userAns} | To'g'ri: ${wrongs[i].correct}", style: const TextStyle(color: Colors.redAccent)),
+                    title: Text(
+                      widget.wrongs[i].question,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    subtitle: Text(
+                      "Siz: ${widget.wrongs[i].userAns} | To'g'ri: ${widget.wrongs[i].correct}",
+                      style: const TextStyle(color: Colors.redAccent),
+                    ),
                     leading: const Icon(Icons.close, color: Colors.red),
                   ),
                 ),
@@ -52,8 +89,9 @@ class ResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int correctCount = totalQuestions - wrongs.length;
-    double successPercent = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+    int correctCount = widget.totalQuestions - widget.wrongs.length;
+    double successPercent =
+        widget.totalQuestions > 0 ? (correctCount / widget.totalQuestions) * 100 : 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F2027),
@@ -66,16 +104,19 @@ class ResultPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text("O'YIN YAKUNLANDI", style: TextStyle(letterSpacing: 2, fontSize: 14, color: Colors.white60)),
+                  const Text(
+                    "O'YIN YAKUNLANDI",
+                    style: TextStyle(letterSpacing: 2, fontSize: 14, color: Colors.white60),
+                  ),
                   const SizedBox(height: 25),
 
-                  // --- FOIZ (Siz aytgandek oddiy raqam ko'rinishida) ---
-                Column(
+                  // Aniqlik foizi
+                  Column(
                     children: [
                       Text(
                         "${successPercent.toInt()}%",
                         style: const TextStyle(
-                          fontSize: 42, // Ball bilan bir xil o'lcham
+                          fontSize: 42,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -88,24 +129,24 @@ class ResultPage extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 25),
-                  
-                  // Score (Ball)
+
+                  // Ball
                   Text(
-                    "$score", 
+                    "${widget.score}",
                     style: const TextStyle(
-                      fontSize: 42, // Foiz bilan bir xil o'lcham
-                      fontWeight: FontWeight.bold, 
-                      color: Colors.cyanAccent
-                    )
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.cyanAccent,
+                    ),
                   ),
                   const Text(
-                    "UMUMIY BALL", 
-                    style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70)
+                    "UMUMIY BALL",
+                    style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70),
                   ),
 
                   const SizedBox(height: 25),
 
-                  // --- COINLAR EKRANI ---
+                  // Coinlar
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
@@ -119,8 +160,12 @@ class ResultPage extends StatelessWidget {
                         const Icon(Icons.monetization_on, color: Colors.amber, size: 28),
                         const SizedBox(width: 10),
                         Text(
-                          "+$coins COIN",
-                          style: const TextStyle(fontSize: 22, color: Colors.amber, fontWeight: FontWeight.bold),
+                          "+${widget.coins} COIN",
+                          style: const TextStyle(
+                            fontSize: 22,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -128,16 +173,18 @@ class ResultPage extends StatelessWidget {
 
                   const SizedBox(height: 30),
 
-                  // Tugmalar
-                  if (wrongs.isNotEmpty)
+                  if (widget.wrongs.isNotEmpty)
                     TextButton.icon(
                       onPressed: () => _showWrongs(context),
                       icon: const Icon(Icons.list_alt, color: Colors.cyanAccent),
-                      label: const Text("XATOLARNI KO'RISH", style: TextStyle(color: Colors.cyanAccent)),
+                      label: const Text(
+                        "XATOLARNI KO'RISH",
+                        style: TextStyle(color: Colors.cyanAccent),
+                      ),
                     ),
 
                   const SizedBox(height: 15),
-                  
+
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -145,13 +192,18 @@ class ResultPage extends StatelessWidget {
                         backgroundColor: Colors.cyanAccent,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                       ),
                       onPressed: () async {
                         await player.play(AssetSource('sounds/click.wav'));
                         Navigator.popUntil(context, (r) => r.isFirst);
                       },
-                      child: const Text("ASOSIY MENYU", style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        "ASOSIY MENYU",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],

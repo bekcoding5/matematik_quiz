@@ -2,15 +2,14 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:matematik_quiz/class/question.dart'; 
-import 'package:matematik_quiz/main.dart'; // Bu yerda global 'player' bor deb hisoblaymiz
+import 'package:matematik_quiz/class/question.dart';
+import 'package:matematik_quiz/main.dart';
 import 'package:matematik_quiz/screens/result_page.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
 import 'package:matematik_quiz/main.dart' show player;
 // ignore: undefined_shown_name
 import 'package:matematik_quiz/main.dart' show MathEngine;
 
-// --- Tanga vidjeti (Alohida widget sifatida qoladi) ---
 class CoinCounter extends StatelessWidget {
   final int coins;
   const CoinCounter({super.key, required this.coins});
@@ -56,7 +55,7 @@ class _GameScreenState extends State<GameScreen> {
   late Question _q;
   int _currentIndex = 0;
   int _score = 0;
-  int _coins = 0; 
+  int _coins = 0;
   int _timeLeft = 0;
   Timer? _timer;
   Color _flashColor = Colors.transparent;
@@ -75,7 +74,7 @@ class _GameScreenState extends State<GameScreen> {
       if (_timeLeft > 0) {
         setState(() => _timeLeft--);
       } else {
-        _onAnswer(-1); // Vaqt tugasa xato deb hisoblaydi
+        _onAnswer(-1);
       }
     });
   }
@@ -89,29 +88,26 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
-  // --- MANA BU YERDA ASOSIY OVOZ VA TANGA MANTIQI ---
   void _onAnswer(int ans) async {
     bool correct = (ans == _q.correctAnswer);
-    
-    // Ovozni chalishdan oldin to'xtatish (tez-tez bosilganda xatolik bermasligi uchun)
+
     await player.stop();
-    
+
     if (correct) {
-      // To'g'ri bo'lsa: "correct" va "coin" ovozini ketma-ket chalish
       await player.play(AssetSource('sounds/correct.mp3'));
-      // Agar alohida coin.wav bo'lsa, pastdagini ham ishlatsangiz bo'ladi:
-      // await player.play(AssetSource('sounds/coin.wav')); 
-      
       HapticFeedback.lightImpact();
       _score += 10;
-      _coins += 5; // Har bir to'g'ri javobga 5 tanga
+      _coins += 5;
     } else {
-      // Xato bo'lsa
       await player.play(AssetSource('sounds/wrong.mp3'));
       HapticFeedback.vibrate();
       if (ans != -1) {
         _wrongAnswersList.add(
-          WrongAnswer(question: _q.text, correct: _q.correctAnswer, userAns: ans),
+          WrongAnswer(
+            question: _q.text,
+            correct: _q.correctAnswer,
+            userAns: ans,
+          ),
         );
       }
     }
@@ -122,7 +118,6 @@ class _GameScreenState extends State<GameScreen> {
           : Colors.red.withOpacity(0.2);
     });
 
-    // Qisqa pauzadan keyin keyingi savolga o'tish
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         setState(() {
@@ -143,7 +138,8 @@ class _GameScreenState extends State<GameScreen> {
           score: _score,
           wrongs: _wrongAnswersList,
           totalQuestions: widget.totalQuestions,
-          coins: _coins, 
+          coins: _coins,
+          difficulty: widget.diff, // ← shu qo'shildi
         ),
       ),
     );
@@ -163,9 +159,9 @@ class _GameScreenState extends State<GameScreen> {
           child: Text(
             "$val",
             style: const TextStyle(
-              fontSize: 28, 
-              fontWeight: FontWeight.bold, 
-              color: Colors.white
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),
@@ -190,22 +186,25 @@ class _GameScreenState extends State<GameScreen> {
                   children: [
                     Text(
                       "SAVOL: ${_currentIndex + 1}/${widget.totalQuestions}",
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    
-                    // SIZ SO'RAGAN TANGA HISOBLAGICHI
                     CoinCounter(coins: _coins),
-
                     GlassBox(
                       opacity: 0.2,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         child: Text(
                           "00:${_timeLeft.toString().padLeft(2, '0')}",
                           style: const TextStyle(
-                            fontSize: 18, 
-                            fontWeight: FontWeight.bold, 
-                            color: Colors.cyanAccent
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.cyanAccent,
                           ),
                         ),
                       ),
@@ -224,7 +223,11 @@ class _GameScreenState extends State<GameScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       _q.text,
-                      style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(
+                        fontSize: 48,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
