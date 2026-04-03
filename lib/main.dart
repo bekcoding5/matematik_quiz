@@ -132,16 +132,16 @@ class MainScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.cyanAccent, fontSize: 12),
               ),
               const SizedBox(height: 80),
-              _actionBtn(
-                context,
-                "START",
-                Icons.play_arrow_rounded,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SetupScreen()),
-                ),
+
+              // ✅ START — keng, yirik, chetdan 32px bo'sh joy
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: _startBtn(context),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 24),
+
+              // ✅ STATISTIKA — oddiy kichik button
               _actionBtn(
                 context,
                 "STATISTIKA",
@@ -153,6 +153,47 @@ class MainScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _startBtn(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await player.play(AssetSource('sounds/click.wav'));
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SetupScreen()),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 22),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.cyanAccent.withOpacity(0.6),
+            width: 1.5,
+          ),
+          color: Colors.cyanAccent.withOpacity(0.12),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.play_arrow_rounded, color: Colors.cyanAccent, size: 32),
+            SizedBox(width: 12),
+            Text(
+              "START",
+              style: TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 4,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );

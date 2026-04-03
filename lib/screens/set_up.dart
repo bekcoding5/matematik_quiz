@@ -12,7 +12,7 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> {
-  String _diff = 'O‘rta';
+  String _diff = "O'rta";  // ✅ tuzatildi
   int _time = 30;
   int _count = 10;
 
@@ -30,7 +30,7 @@ class _SetupScreenState extends State<SetupScreen> {
           children: [
             _optionTile(
               "QIYINLIK",
-              ['Oson', 'O‘rta', 'Qiyin'],
+              ["Oson", "O'rta", "Qiyin"],  // ✅ tuzatildi
               _diff,
               (v) => setState(() => _diff = v),
             ),
@@ -49,8 +49,6 @@ class _SetupScreenState extends State<SetupScreen> {
               (v) => setState(() => _count = v),
             ),
             const Spacer(),
-
-            /// 🔥 YANGI BUTTON (MainScreen bilan bir xil)
             _startBtn(context),
           ],
         ),
@@ -58,7 +56,6 @@ class _SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  /// ✅ Clean reusable start button
   Widget _startBtn(BuildContext context) {
     return GestureDetector(
       onTap: () async {
