@@ -128,7 +128,7 @@ class MainScreen extends StatelessWidget {
                 ),
               ),
               const Text(
-                "Miyangizni maksimal darajada ishlating",
+                "Use your brain to the fullest",
                 style: TextStyle(color: Colors.cyanAccent, fontSize: 12),
               ),
               const SizedBox(height: 80),
@@ -144,7 +144,7 @@ class MainScreen extends StatelessWidget {
               // ✅ STATISTIKA — oddiy kichik button
               _actionBtn(
                 context,
-                "STATISTIKA",
+            "STATISTICS",
                 Icons.bar_chart_rounded,
                 () => Navigator.push(
                   context,

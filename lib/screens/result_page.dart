@@ -52,7 +52,7 @@ class _ResultPageState extends State<ResultPage> {
           child: Column(
             children: [
               const Text(
-                "XATOLAR TAHLILI",
+              "ERROR ANALYSIS",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -73,7 +73,7 @@ class _ResultPageState extends State<ResultPage> {
                       ),
                     ),
                     subtitle: Text(
-                      "Siz: ${widget.wrongs[i].userAns} | To'g'ri: ${widget.wrongs[i].correct}",
+                      "You: ${widget.wrongs[i].userAns} |Correct: ${widget.wrongs[i].correct}",
                       style: const TextStyle(color: Colors.redAccent),
                     ),
                     leading: const Icon(Icons.close, color: Colors.red),
@@ -105,7 +105,7 @@ class _ResultPageState extends State<ResultPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    "O'YIN YAKUNLANDI",
+               "GAME OVER",
                     style: TextStyle(letterSpacing: 2, fontSize: 14, color: Colors.white60),
                   ),
                   const SizedBox(height: 25),
@@ -122,7 +122,7 @@ class _ResultPageState extends State<ResultPage> {
                         ),
                       ),
                       const Text(
-                        "ANIQLIK DARAJASI",
+                       "DEGREE OF ACCURACY",
                         style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70),
                       ),
                     ],
@@ -140,7 +140,7 @@ class _ResultPageState extends State<ResultPage> {
                     ),
                   ),
                   const Text(
-                    "UMUMIY BALL",
+                   "TOTAL SCORE",
                     style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70),
                   ),
 
@@ -178,7 +178,7 @@ class _ResultPageState extends State<ResultPage> {
                       onPressed: () => _showWrongs(context),
                       icon: const Icon(Icons.list_alt, color: Colors.cyanAccent),
                       label: const Text(
-                        "XATOLARNI KO'RISH",
+                      "VIEW ERRORS",
                         style: TextStyle(color: Colors.cyanAccent),
                       ),
                     ),
@@ -201,7 +201,7 @@ class _ResultPageState extends State<ResultPage> {
                         Navigator.popUntil(context, (r) => r.isFirst);
                       },
                       child: const Text(
-                        "ASOSIY MENYU",
+                      "MAIN MENU",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

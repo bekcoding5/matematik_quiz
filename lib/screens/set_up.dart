@@ -21,7 +21,7 @@ class _SetupScreenState extends State<SetupScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F2027),
       appBar: AppBar(
-        title: const Text("SOZLAMALAR"),
+        title: const Text("Setting"),
         backgroundColor: Colors.transparent,
       ),
       body: Padding(
@@ -29,21 +29,21 @@ class _SetupScreenState extends State<SetupScreen> {
         child: Column(
           children: [
             _optionTile(
-              "QIYINLIK",
-              ["Oson", "O'rta", "Qiyin"],  // ✅ tuzatildi
+              "Difficulty",
+              ["Easy", "Medium", "Hard"],  // ✅ tuzatildi
               _diff,
               (v) => setState(() => _diff = v),
             ),
             const SizedBox(height: 15),
             _optionTile(
-              "VAQT (sekund)",
+          "TIME (seconds)",
               [15, 30, 45],
               _time,
               (v) => setState(() => _time = v),
             ),
             const SizedBox(height: 15),
             _optionTile(
-              "SAVOLLAR SONI",
+           "NUMBER OF QUESTIONS",
               [5, 10, 20],
               _count,
               (v) => setState(() => _count = v),
@@ -78,7 +78,7 @@ class _SetupScreenState extends State<SetupScreen> {
             vertical: 20,
           ),
           child: const Text(
-            "O'YINNI BOSHLASH",
+           "START GAME",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

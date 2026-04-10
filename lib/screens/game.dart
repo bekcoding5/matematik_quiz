@@ -185,7 +185,7 @@ class _GameScreenState extends State<GameScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "SAVOL: ${_currentIndex + 1}/${widget.totalQuestions}",
+                      "Question: ${_currentIndex + 1}/${widget.totalQuestions}",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.white,

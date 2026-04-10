@@ -60,7 +60,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           ),
                           const Expanded(
                             child: Text(
-                              "STATISTIKA",
+                             "STATISTICS",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 22,
@@ -89,19 +89,19 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             // Umumiy o'yinlar
                             _statCard(
                               icon: Icons.sports_esports,
-                              title: "Umumiy o'yinlar",
+                              title:"General games",
                               value: "${_stats['totalGames']}",
                               color: Colors.cyanAccent,
                             ),
                             const SizedBox(height: 12),
                             // Qiyinlik bo'yicha
-                            _sectionTitle("Qiyinlik bo'yicha"),
+                            _sectionTitle("By difficulty"),
                             const SizedBox(height: 12),
                             Row(
                               children: [
                                 Expanded(
                                   child: _difficultyCard(
-                                    label: "Oson",
+                                    label: "Easy",
                                     value: "${_stats['easyGames']}",
                                     color: Colors.greenAccent,
                                     icon: Icons.sentiment_satisfied_alt,
@@ -110,7 +110,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: _difficultyCard(
-                                    label: "O'rta",
+                                    label: "Medium",
                                     value: "${_stats['mediumGames']}",
                                     color: Colors.orangeAccent,
                                     icon: Icons.sentiment_neutral,
@@ -119,7 +119,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: _difficultyCard(
-                                    label: "Qiyin",
+                                    label: "Hard",
                                     value: "${_stats['hardGames']}",
                                     color: Colors.redAccent,
                                     icon: Icons.sentiment_very_dissatisfied,
@@ -157,7 +157,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Column(
         children: [
           const Text(
-            "Aniqlik",
+            "Clarity",
             style: TextStyle(
               color: Colors.white70,
               fontSize: 14,
@@ -278,22 +278,22 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF203A43),
-        title: const Text("Tozalash", style: TextStyle(color: Colors.white)),
+        title: const Text("clear", style: TextStyle(color: Colors.white)),
         content: const Text(
-          "Barcha statistika o'chiriladi. Davom etasizmi?",
+         "All statistics will be deleted. Do you want to continue?",
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Bekor", style: TextStyle(color: Colors.white54)),
+            child: const Text("Void", style: TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _clearStats();
             },
-            child: const Text("O'chirish", style: TextStyle(color: Colors.redAccent)),
+            child: const Text("Turn off", style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
