@@ -3,12 +3,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:matematik_quiz/class/question.dart';
-import 'package:matematik_quiz/main.dart';
+import 'package:matematik_quiz/main.dart'; 
 import 'package:matematik_quiz/screens/result_page.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
-import 'package:matematik_quiz/main.dart' show player;
-// ignore: undefined_shown_name
-import 'package:matematik_quiz/main.dart' show MathEngine;
 
 class CoinCounter extends StatelessWidget {
   final int coins;
@@ -59,7 +56,7 @@ class _GameScreenState extends State<GameScreen> {
   int _timeLeft = 0;
   Timer? _timer;
   Color _flashColor = Colors.transparent;
-  List<WrongAnswer> _wrongAnswersList = [];
+  final List<WrongAnswer> _wrongAnswersList = [];
 
   @override
   void initState() {
@@ -72,9 +69,9 @@ class _GameScreenState extends State<GameScreen> {
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_timeLeft > 0) {
-        setState(() => _timeLeft--);
+        if (mounted) setState(() => _timeLeft--);
       } else {
-        _onAnswer(-1);
+        _onAnswer(-1); // Vaqt tugaganda xato deb hisoblaydi
       }
     });
   }
@@ -97,7 +94,16 @@ class _GameScreenState extends State<GameScreen> {
       await player.play(AssetSource('sounds/correct.mp3'));
       HapticFeedback.lightImpact();
       _score += 10;
-      _coins += 5;
+      
+      // 💰 DYNAMIC REWARD SYSTEM (Darajaga qarab coin berish)
+      if (widget.diff == 'Easy') {
+        _coins += 3;
+      } else if (widget.diff == 'Medium') {
+        _coins += 5;
+      } else if (widget.diff == 'Hard') {
+        _coins += 10;
+      }
+      
     } else {
       await player.play(AssetSource('sounds/wrong.mp3'));
       HapticFeedback.vibrate();
@@ -112,11 +118,13 @@ class _GameScreenState extends State<GameScreen> {
       }
     }
 
-    setState(() {
-      _flashColor = correct
-          ? Colors.green.withOpacity(0.2)
-          : Colors.red.withOpacity(0.2);
-    });
+    if (mounted) {
+      setState(() {
+        _flashColor = correct
+            ? Colors.green.withOpacity(0.2)
+            : Colors.red.withOpacity(0.2);
+      });
+    }
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -139,7 +147,7 @@ class _GameScreenState extends State<GameScreen> {
           wrongs: _wrongAnswersList,
           totalQuestions: widget.totalQuestions,
           coins: _coins,
-          difficulty: widget.diff, // ← shu qo'shildi
+          difficulty: widget.diff,
         ),
       ),
     );
@@ -171,84 +179,99 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F2027),
-      body: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        color: _flashColor,
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ValueListenableBuilder<int>(
+      valueListenable: currentThemeIndex,
+      builder: (context, themeIndex, _) {
+        return Scaffold(
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gameThemes[themeIndex].colors,
+              ),
+            ),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              color: _flashColor,
+              child: SafeArea(
+                child: Column(
                   children: [
-                    Text(
-                      "Question: ${_currentIndex + 1}/${widget.totalQuestions}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Question: ${_currentIndex + 1}/${widget.totalQuestions}", // Inglizcha
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          CoinCounter(coins: _coins),
+                          GlassBox(
+                            opacity: 0.2,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              child: Text(
+                                "00:${_timeLeft.toString().padLeft(2, '0')}",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.cyanAccent,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    CoinCounter(coins: _coins),
-                    GlassBox(
-                      opacity: 0.2,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        child: Text(
-                          "00:${_timeLeft.toString().padLeft(2, '0')}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.cyanAccent,
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      child: GlassBox(
+                        opacity: 0.15,
+                        child: Container(
+                          width: double.infinity,
+                          height: 160,
+                          alignment: Alignment.center,
+                          child: Text(
+                            _q.text,
+                            style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.all(25),
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 15,
+                        crossAxisSpacing: 15,
+                        childAspectRatio: 1.4,
+                        children: _q.options.map((o) => _answerBtn(o)).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
-                child: GlassBox(
-                  opacity: 0.15,
-                  child: Container(
-                    width: double.infinity,
-                    height: 160,
-                    alignment: Alignment.center,
-                    child: Text(
-                      _q.text,
-                      style: const TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.all(25),
-                child: GridView.count(
-                  shrinkWrap: true,
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 15,
-                  crossAxisSpacing: 15,
-                  childAspectRatio: 1.4,
-                  children: _q.options.map((o) => _answerBtn(o)).toList(),
-                ),
-              ),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

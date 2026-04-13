@@ -12,7 +12,7 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> {
-  String _diff = "O'rta";  // ✅ tuzatildi
+  String _diff = "Medium";
   int _time = 30;
   int _count = 10;
 
@@ -30,20 +30,20 @@ class _SetupScreenState extends State<SetupScreen> {
           children: [
             _optionTile(
               "Difficulty",
-              ["Easy", "Medium", "Hard"],  // ✅ tuzatildi
+              ["Easy", "Medium", "Hard"],
               _diff,
               (v) => setState(() => _diff = v),
             ),
             const SizedBox(height: 15),
             _optionTile(
-          "TIME (seconds)",
+              "TIME (seconds)",
               [15, 30, 45],
               _time,
               (v) => setState(() => _time = v),
             ),
             const SizedBox(height: 15),
             _optionTile(
-           "NUMBER OF QUESTIONS",
+              "NUMBER OF QUESTIONS",
               [5, 10, 20],
               _count,
               (v) => setState(() => _count = v),
@@ -78,7 +78,7 @@ class _SetupScreenState extends State<SetupScreen> {
             vertical: 20,
           ),
           child: const Text(
-           "START GAME",
+            "START GAME",
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

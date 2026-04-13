@@ -39,6 +39,7 @@ class _ResultPageState extends State<ResultPage> {
       correct: correctCount,
       total: widget.totalQuestions,
     );
+    await DataManager.saveCoins(widget.coins);
   }
 
   void _showWrongs(BuildContext context) {
@@ -52,7 +53,7 @@ class _ResultPageState extends State<ResultPage> {
           child: Column(
             children: [
               const Text(
-              "ERROR ANALYSIS",
+                "ERROR ANALYSIS",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -73,7 +74,7 @@ class _ResultPageState extends State<ResultPage> {
                       ),
                     ),
                     subtitle: Text(
-                      "You: ${widget.wrongs[i].userAns} |Correct: ${widget.wrongs[i].correct}",
+                      "You: ${widget.wrongs[i].userAns} | Correct: ${widget.wrongs[i].correct}",
                       style: const TextStyle(color: Colors.redAccent),
                     ),
                     leading: const Icon(Icons.close, color: Colors.red),
@@ -90,8 +91,9 @@ class _ResultPageState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     int correctCount = widget.totalQuestions - widget.wrongs.length;
-    double successPercent =
-        widget.totalQuestions > 0 ? (correctCount / widget.totalQuestions) * 100 : 0;
+    double successPercent = widget.totalQuestions > 0
+        ? (correctCount / widget.totalQuestions) * 100
+        : 0;
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F2027),
@@ -105,12 +107,13 @@ class _ResultPageState extends State<ResultPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-               "GAME OVER",
-                    style: TextStyle(letterSpacing: 2, fontSize: 14, color: Colors.white60),
+                    "GAME OVER",
+                    style: TextStyle(
+                        letterSpacing: 2,
+                        fontSize: 14,
+                        color: Colors.white60),
                   ),
                   const SizedBox(height: 25),
-
-                  // Aniqlik foizi
                   Column(
                     children: [
                       Text(
@@ -122,15 +125,15 @@ class _ResultPageState extends State<ResultPage> {
                         ),
                       ),
                       const Text(
-                       "DEGREE OF ACCURACY",
-                        style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70),
+                        "DEGREE OF ACCURACY",
+                        style: TextStyle(
+                            letterSpacing: 2,
+                            fontSize: 10,
+                            color: Colors.white70),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 25),
-
-                  // Ball
                   Text(
                     "${widget.score}",
                     style: const TextStyle(
@@ -140,24 +143,27 @@ class _ResultPageState extends State<ResultPage> {
                     ),
                   ),
                   const Text(
-                   "TOTAL SCORE",
-                    style: TextStyle(letterSpacing: 2, fontSize: 10, color: Colors.white70),
+                    "TOTAL SCORE",
+                    style: TextStyle(
+                        letterSpacing: 2,
+                        fontSize: 10,
+                        color: Colors.white70),
                   ),
-
                   const SizedBox(height: 25),
-
-                  // Coinlar
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
                       color: Colors.amber.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.amber.withOpacity(0.5)),
+                      border: Border.all(
+                          color: Colors.amber.withOpacity(0.5)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.monetization_on, color: Colors.amber, size: 28),
+                        const Icon(Icons.monetization_on,
+                            color: Colors.amber, size: 28),
                         const SizedBox(width: 10),
                         Text(
                           "+${widget.coins} COIN",
@@ -170,38 +176,38 @@ class _ResultPageState extends State<ResultPage> {
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 30),
-
                   if (widget.wrongs.isNotEmpty)
                     TextButton.icon(
                       onPressed: () => _showWrongs(context),
-                      icon: const Icon(Icons.list_alt, color: Colors.cyanAccent),
+                      icon: const Icon(Icons.list_alt,
+                          color: Colors.cyanAccent),
                       label: const Text(
-                      "VIEW ERRORS",
+                        "VIEW ERRORS",
                         style: TextStyle(color: Colors.cyanAccent),
                       ),
                     ),
-
                   const SizedBox(height: 15),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.cyanAccent,
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                       onPressed: () async {
-                        await player.play(AssetSource('sounds/click.wav'));
-                        Navigator.popUntil(context, (r) => r.isFirst);
+                        await player
+                            .play(AssetSource('sounds/click.wav'));
+                        Navigator.popUntil(
+                            context, (r) => r.isFirst);
                       },
                       child: const Text(
-                      "MAIN MENU",
+                        "MAIN MENU",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
