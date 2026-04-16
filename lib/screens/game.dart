@@ -2,34 +2,14 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:matematik_quiz/class/question.dart';
-import 'package:matematik_quiz/main.dart'; 
+import 'package:matematik_quiz/class/math_engine.dart';  // MathEngine
+import 'package:matematik_quiz/class/question.dart';      // Question, WrongAnswer
+import 'package:matematik_quiz/main.dart';                // player (AudioPlayer)
 import 'package:matematik_quiz/screens/result_page.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
+import 'package:matematik_quiz/widgets/gradient_scaffold.dart';
 
-class CoinCounter extends StatelessWidget {
-  final int coins;
-  const CoinCounter({super.key, required this.coins});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Icon(Icons.monetization_on, color: Colors.amber, size: 24),
-        const SizedBox(width: 5),
-        Text(
-          "$coins",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-        ),
-      ],
-    );
-  }
-}
+// qolgan kod o'zgarishsiz...;
 
 class GameScreen extends StatefulWidget {
   final String diff;
@@ -57,88 +37,97 @@ class _GameScreenState extends State<GameScreen> {
   Timer? _timer;
   Color _flashColor = Colors.transparent;
   final List<WrongAnswer> _wrongAnswersList = [];
+  bool _isAnswering = false;
 
   @override
   void initState() {
     super.initState();
     _timeLeft = widget.time;
-    _generateNext();
+    _q = _engine.generate(widget.diff);
     _startTimer();
   }
 
   void _startTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
       if (_timeLeft > 0) {
-        if (mounted) setState(() => _timeLeft--);
+        setState(() => _timeLeft--);
       } else {
-        _onAnswer(-1); // Vaqt tugaganda xato deb hisoblaydi
+        _onAnswer(-1); // vaqt tugadi
       }
     });
   }
 
-  void _generateNext() {
-    if (_currentIndex >= widget.totalQuestions) {
-      _finish();
-    } else {
-      _q = _engine.generate(widget.diff);
-      _timeLeft = widget.time;
-    }
-  }
+  Future<void> _onAnswer(int ans) async {
+    if (_isAnswering) return;
+    _isAnswering = true;
+    _timer?.cancel();
 
-  void _onAnswer(int ans) async {
-    bool correct = (ans == _q.correctAnswer);
+    final bool correct = ans == _q.correctAnswer;
 
-    await player.stop();
+    try {
+      await player.stop();
+      if (correct) {
+        await player.play(AssetSource('sounds/correct.mp3'));
+        HapticFeedback.lightImpact();
+      } else {
+        await player.play(AssetSource('sounds/wrong.mp3'));
+        HapticFeedback.vibrate();
+      }
+    } catch (_) {}
 
     if (correct) {
-      await player.play(AssetSource('sounds/correct.mp3'));
-      HapticFeedback.lightImpact();
       _score += 10;
-      
-      // 💰 DYNAMIC REWARD SYSTEM (Darajaga qarab coin berish)
       if (widget.diff == 'Easy') {
         _coins += 3;
       } else if (widget.diff == 'Medium') {
         _coins += 5;
-      } else if (widget.diff == 'Hard') {
+      } else {
         _coins += 10;
       }
-      
-    } else {
-      await player.play(AssetSource('sounds/wrong.mp3'));
-      HapticFeedback.vibrate();
-      if (ans != -1) {
-        _wrongAnswersList.add(
-          WrongAnswer(
-            question: _q.text,
-            correct: _q.correctAnswer,
-            userAns: ans,
-          ),
-        );
-      }
+    } else if (ans != -1) {
+      _wrongAnswersList.add(
+        WrongAnswer(
+          question: _q.text,
+          correct: _q.correctAnswer,
+          userAns: ans,
+        ),
+      );
     }
 
     if (mounted) {
       setState(() {
         _flashColor = correct
-            ? Colors.green.withOpacity(0.2)
-            : Colors.red.withOpacity(0.2);
+            ? Colors.green.withOpacity(0.25)
+            : Colors.red.withOpacity(0.25);
       });
     }
 
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) {
-        setState(() {
-          _flashColor = Colors.transparent;
-          _currentIndex++;
-          _generateNext();
-        });
-      }
+    await Future.delayed(const Duration(milliseconds: 350));
+
+    if (!mounted) return;
+
+    _currentIndex++;
+
+    if (_currentIndex >= widget.totalQuestions) {
+      _finish();
+      return;
+    }
+
+    setState(() {
+      _q = _engine.generate(widget.diff);
+      _timeLeft = widget.time;
+      _flashColor = Colors.transparent;
+      _isAnswering = false;
     });
+
+    _startTimer();
   }
 
   void _finish() {
     _timer?.cancel();
+    if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -165,7 +154,7 @@ class _GameScreenState extends State<GameScreen> {
       child: GlassBox(
         child: Center(
           child: Text(
-            "$val",
+            '$val',
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -179,99 +168,144 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: currentThemeIndex,
-      builder: (context, themeIndex, _) {
-        return Scaffold(
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: gameThemes[themeIndex].colors,
-              ),
-            ),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              color: _flashColor,
-              child: SafeArea(
-                child: Column(
+    // Vaqt foizi (progress bar uchun)
+    double timePercent = _timeLeft / widget.time;
+    Color timerColor = timePercent > 0.5
+        ? Colors.cyanAccent
+        : timePercent > 0.25
+            ? Colors.orangeAccent
+            : Colors.redAccent;
+
+    return GradientScaffold(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        color: _flashColor,
+        child: SafeArea(
+          child: Column(
+            children: [
+              // --- TOP BAR ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Question: ${_currentIndex + 1}/${widget.totalQuestions}", // Inglizcha
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          CoinCounter(coins: _coins),
-                          GlassBox(
-                            opacity: 0.2,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              child: Text(
-                                "00:${_timeLeft.toString().padLeft(2, '0')}",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.cyanAccent,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25),
-                      child: GlassBox(
-                        opacity: 0.15,
-                        child: Container(
-                          width: double.infinity,
-                          height: 160,
-                          alignment: Alignment.center,
-                          child: Text(
-                            _q.text,
-                            style: const TextStyle(
-                              fontSize: 48,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                    // Savol raqami
+                    GlassBox(
+                      opacity: 0.15,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        child: Text(
+                          '${_currentIndex + 1} / ${widget.totalQuestions}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 15,
                           ),
                         ),
                       ),
                     ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(25),
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 15,
-                        crossAxisSpacing: 15,
-                        childAspectRatio: 1.4,
-                        children: _q.options.map((o) => _answerBtn(o)).toList(),
+                    // Coin counter
+                    GlassBox(
+                      opacity: 0.15,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.monetization_on, color: Colors.amber, size: 22),
+                            const SizedBox(width: 6),
+                            Text(
+                              '$_coins',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    // Timer
+                    GlassBox(
+                      opacity: 0.15,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        child: Text(
+                          '00:${_timeLeft.toString().padLeft(2, '0')}',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: timerColor,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
+
+              // Timer progress bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: timePercent,
+                    minHeight: 5,
+                    backgroundColor: Colors.white12,
+                    valueColor: AlwaysStoppedAnimation<Color>(timerColor),
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // --- SAVOL ---
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: GlassBox(
+                  opacity: 0.15,
+                  child: Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(minHeight: 140),
+                    padding: const EdgeInsets.all(20),
+                    alignment: Alignment.center,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        _q.text,
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              // --- JAVOB TUGMALARI ---
+              Padding(
+                padding: const EdgeInsets.all(25),
+                child: GridView.count(
+                  shrinkWrap: true,
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 15,
+                  crossAxisSpacing: 15,
+                  childAspectRatio: 1.6,
+                  children: _q.options.map((o) => _answerBtn(o)).toList(),
+                ),
+              ),
+
+              const SizedBox(height: 10),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

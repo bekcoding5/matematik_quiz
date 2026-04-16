@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:matematik_quiz/class/data_manager.dart';
+import 'package:matematik_quiz/widgets/gradient_scaffold.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -9,8 +10,7 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
-  Map<String, dynamic> _stats = {};
-  bool _loading = true;
+  late Map<String, dynamic> _stats;
 
   @override
   void initState() {
@@ -18,129 +18,98 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     _loadStats();
   }
 
-  Future<void> _loadStats() async {
-    final stats = await DataManager.getStats();
+  void _loadStats() {
     setState(() {
-      _stats = stats;
-      _loading = false;
+      _stats = DataManager.getStats();
     });
   }
 
   Future<void> _clearStats() async {
     await DataManager.clearStats();
-    await _loadStats();
+    _loadStats();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364)],
+    return GradientScaffold(
+      appBar: AppBar(
+        title: const Text(
+          'STATISTICS',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 4,
+            color: Colors.white,
           ),
         ),
-        child: SafeArea(
-          child: _loading
-              ? const Center(child: CircularProgressIndicator(color: Colors.cyanAccent))
-              : Column(
-                  children: [
-                    // Header
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                          const Expanded(
-                            child: Text(
-                             "STATISTICS",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 4,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                            onPressed: () => _showClearDialog(),
-                          ),
-                        ],
-                      ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+            onPressed: _showClearDialog,
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              _accuracyCard(),
+              const SizedBox(height: 16),
+              _statCard(
+                icon: Icons.sports_esports,
+                title: 'Total games',
+                value: '${_stats['totalGames']}',
+                color: Colors.cyanAccent,
+              ),
+              const SizedBox(height: 16),
+              _sectionTitle('BY DIFFICULTY'),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _difficultyCard(
+                      label: 'Easy',
+                      value: '${_stats['easyGames']}',
+                      color: Colors.greenAccent,
+                      icon: Icons.sentiment_satisfied_alt,
                     ),
-
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            // Aniqlik foizi - asosiy karta
-                            _accuracyCard(),
-                            const SizedBox(height: 20),
-                            // Umumiy o'yinlar
-                            _statCard(
-                              icon: Icons.sports_esports,
-                              title:"General games",
-                              value: "${_stats['totalGames']}",
-                              color: Colors.cyanAccent,
-                            ),
-                            const SizedBox(height: 12),
-                            // Qiyinlik bo'yicha
-                            _sectionTitle("By difficulty"),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _difficultyCard(
-                                    label: "Easy",
-                                    value: "${_stats['easyGames']}",
-                                    color: Colors.greenAccent,
-                                    icon: Icons.sentiment_satisfied_alt,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _difficultyCard(
-                                    label: "Medium",
-                                    value: "${_stats['mediumGames']}",
-                                    color: Colors.orangeAccent,
-                                    icon: Icons.sentiment_neutral,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _difficultyCard(
-                                    label: "Hard",
-                                    value: "${_stats['hardGames']}",
-                                    color: Colors.redAccent,
-                                    icon: Icons.sentiment_very_dissatisfied,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _difficultyCard(
+                      label: 'Medium',
+                      value: '${_stats['mediumGames']}',
+                      color: Colors.orangeAccent,
+                      icon: Icons.sentiment_neutral,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _difficultyCard(
+                      label: 'Hard',
+                      value: '${_stats['hardGames']}',
+                      color: Colors.redAccent,
+                      icon: Icons.sentiment_very_dissatisfied,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _accuracyCard() {
-    double accuracy = (_stats['accuracy'] as double?) ?? 0.0;
-    Color accuracyColor = accuracy >= 70
+    final double accuracy = (_stats['accuracy'] as double?) ?? 0.0;
+    final Color accuracyColor = accuracy >= 70
         ? Colors.greenAccent
         : accuracy >= 40
             ? Colors.orangeAccent
@@ -157,16 +126,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Column(
         children: [
           const Text(
-            "Clarity",
+            'ACCURACY',
             style: TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-              letterSpacing: 2,
+              color: Colors.white54,
+              fontSize: 12,
+              letterSpacing: 3,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            "${accuracy.toStringAsFixed(1)}%",
+            '${accuracy.toStringAsFixed(1)}%',
             style: TextStyle(
               fontSize: 64,
               fontWeight: FontWeight.w900,
@@ -265,9 +234,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       child: Text(
         title,
         style: const TextStyle(
-          color: Colors.white54,
-          fontSize: 13,
-          letterSpacing: 2,
+          color: Colors.white38,
+          fontSize: 12,
+          letterSpacing: 3,
         ),
       ),
     );
@@ -278,22 +247,26 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: const Color(0xFF203A43),
-        title: const Text("clear", style: TextStyle(color: Colors.white)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Clear statistics',
+          style: TextStyle(color: Colors.white),
+        ),
         content: const Text(
-         "All statistics will be deleted. Do you want to continue?",
+          'All statistics will be deleted. Do you want to continue?',
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Void", style: TextStyle(color: Colors.white54)),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _clearStats();
             },
-            child: const Text("Turn off", style: TextStyle(color: Colors.redAccent)),
+            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),

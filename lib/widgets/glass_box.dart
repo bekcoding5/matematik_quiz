@@ -1,10 +1,10 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class GlassBox extends StatelessWidget {
   final Widget child;
   final double opacity;
+
   const GlassBox({super.key, required this.child, this.opacity = 0.1});
 
   @override
