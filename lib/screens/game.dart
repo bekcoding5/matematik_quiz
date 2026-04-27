@@ -2,10 +2,11 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:matematik_quiz/class/math_engine.dart';  // MathEngine
-import 'package:matematik_quiz/class/question.dart';      // Question, WrongAnswer
-import 'package:matematik_quiz/main.dart';                // player (AudioPlayer)
+import 'package:matematik_quiz/class/math_engine.dart'; // MathEngine
+import 'package:matematik_quiz/class/question.dart'; // Question, WrongAnswer
+import 'package:matematik_quiz/main.dart'; // player (AudioPlayer)
 import 'package:matematik_quiz/screens/result_page.dart';
+import 'package:matematik_quiz/widgets/ad_banner_widget.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
 import 'package:matematik_quiz/widgets/gradient_scaffold.dart';
 
@@ -88,11 +89,7 @@ class _GameScreenState extends State<GameScreen> {
       }
     } else if (ans != -1) {
       _wrongAnswersList.add(
-        WrongAnswer(
-          question: _q.text,
-          correct: _q.correctAnswer,
-          userAns: ans,
-        ),
+        WrongAnswer(question: _q.text, correct: _q.correctAnswer, userAns: ans),
       );
     }
 
@@ -173,8 +170,8 @@ class _GameScreenState extends State<GameScreen> {
     Color timerColor = timePercent > 0.5
         ? Colors.cyanAccent
         : timePercent > 0.25
-            ? Colors.orangeAccent
-            : Colors.redAccent;
+        ? Colors.orangeAccent
+        : Colors.redAccent;
 
     return GradientScaffold(
       child: AnimatedContainer(
@@ -185,7 +182,10 @@ class _GameScreenState extends State<GameScreen> {
             children: [
               // --- TOP BAR ---
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -193,7 +193,10 @@ class _GameScreenState extends State<GameScreen> {
                     GlassBox(
                       opacity: 0.15,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         child: Text(
                           '${_currentIndex + 1} / ${widget.totalQuestions}',
                           style: const TextStyle(
@@ -208,11 +211,18 @@ class _GameScreenState extends State<GameScreen> {
                     GlassBox(
                       opacity: 0.15,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.monetization_on, color: Colors.amber, size: 22),
+                            const Icon(
+                              Icons.monetization_on,
+                              color: Colors.amber,
+                              size: 22,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               '$_coins',
@@ -230,7 +240,10 @@ class _GameScreenState extends State<GameScreen> {
                     GlassBox(
                       opacity: 0.15,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
                         child: Text(
                           '00:${_timeLeft.toString().padLeft(2, '0')}',
                           style: TextStyle(
@@ -285,7 +298,8 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               ),
-
+              Spacer(),
+              AdBanner(),
               const Spacer(),
 
               // --- JAVOB TUGMALARI ---

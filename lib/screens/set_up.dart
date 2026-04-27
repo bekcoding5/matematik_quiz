@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:matematik_quiz/main.dart';
 import 'package:matematik_quiz/screens/game.dart';
+import 'package:matematik_quiz/widgets/ad_banner_widget.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
 import 'package:matematik_quiz/widgets/gradient_scaffold.dart';
 
@@ -57,6 +58,9 @@ class _SetupScreenState extends State<SetupScreen> {
               const Spacer(),
               _startBtn(context),
               const SizedBox(height: 30),
+                AdBanner(),
+              const SizedBox(height: 10),
+
             ],
           ),
         ),

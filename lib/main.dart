@@ -1,10 +1,12 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:matematik_quiz/class/data_manager.dart';
 import 'package:matematik_quiz/class/theme_item.dart';
 import 'package:matematik_quiz/screens/set_up.dart';
 import 'package:matematik_quiz/screens/statistics_screen.dart';
+import 'package:matematik_quiz/widgets/ad_banner_widget.dart';
 import 'package:matematik_quiz/widgets/glass_box.dart';
 
 // Global audio player
@@ -12,7 +14,7 @@ final AudioPlayer player = AudioPlayer();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  MobileAds.instance.initialize();
   await DataManager.init();
   currentThemeIndex.value = DataManager.getTheme();
 
@@ -63,7 +65,11 @@ class MainScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const SizedBox(height: 40),
-                      const Icon(Icons.psychology, size: 100, color: Colors.cyanAccent),
+                      const Icon(
+                        Icons.psychology,
+                        size: 100,
+                        color: Colors.cyanAccent,
+                      ),
                       const SizedBox(height: 20),
                       const Text(
                         'MATH MASTER',
@@ -75,20 +81,47 @@ class MainScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 80),
-                      _actionBtn(context, 'START', Icons.play_arrow_rounded, () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const SetupScreen()));
-                      }),
+                      _actionBtn(
+                        context,
+                        'START',
+                        Icons.play_arrow_rounded,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SetupScreen(),
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(height: 20),
-                      _actionBtn(context, 'STATISTICS', Icons.bar_chart_rounded, () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const StatisticsScreen()));
-                      }),
+                      _actionBtn(
+                        context,
+                        'STATISTICS',
+                        Icons.bar_chart_rounded,
+                        () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const StatisticsScreen(),
+                            ),
+                          );
+                        },
+                      ),
                       const SizedBox(height: 20),
-                      _actionBtn(context, 'THEME SHOP', Icons.palette_outlined, () {
-                        _showThemeShop(context);
-                      }),
+                      _actionBtn(
+                        context,
+                        'THEME SHOP',
+                        Icons.palette_outlined,
+                        () {
+                          _showThemeShop(context);
+                        },
+                      ),
                       const SizedBox(height: 40),
+                      Align(
+                        alignment: AlignmentGeometry.bottomCenter,
+                        child: AdBanner(),
+                      ),
                     ],
                   ),
                 ),
@@ -100,7 +133,12 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _actionBtn(BuildContext context, String label, IconData icon, VoidCallback onTap) {
+  Widget _actionBtn(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: GestureDetector(
@@ -209,15 +247,24 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.amber.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.amber.withOpacity(0.4)),
+                        border: Border.all(
+                          color: Colors.amber.withOpacity(0.4),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.monetization_on, color: Colors.amber, size: 20),
+                          const Icon(
+                            Icons.monetization_on,
+                            color: Colors.amber,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '$coins',
@@ -248,7 +295,9 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(15),
                           border: isSelected
-                              ? Border.all(color: Colors.cyanAccent.withOpacity(0.4))
+                              ? Border.all(
+                                  color: Colors.cyanAccent.withOpacity(0.4),
+                                )
                               : null,
                         ),
                         child: ListTile(
@@ -259,8 +308,14 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                               shape: BoxShape.circle,
                               gradient: LinearGradient(
                                 colors: gameThemes[i].colors.length >= 2
-                                    ? [gameThemes[i].colors.first, gameThemes[i].colors.last]
-                                    : [gameThemes[i].colors.first, gameThemes[i].colors.first],
+                                    ? [
+                                        gameThemes[i].colors.first,
+                                        gameThemes[i].colors.last,
+                                      ]
+                                    : [
+                                        gameThemes[i].colors.first,
+                                        gameThemes[i].colors.first,
+                                      ],
                               ),
                               border: Border.all(color: Colors.white24),
                             ),
@@ -273,13 +328,21 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                             ),
                           ),
                           subtitle: Text(
-                            isUnlocked ? 'Unlocked' : '${gameThemes[i].price} coins',
+                            isUnlocked
+                                ? 'Unlocked'
+                                : '${gameThemes[i].price} coins',
                             style: TextStyle(
-                              color: isUnlocked ? Colors.greenAccent : Colors.white54,
+                              color: isUnlocked
+                                  ? Colors.greenAccent
+                                  : Colors.white54,
                             ),
                           ),
                           trailing: isSelected
-                              ? const Icon(Icons.check_circle, color: Colors.cyanAccent, size: 30)
+                              ? const Icon(
+                                  Icons.check_circle,
+                                  color: Colors.cyanAccent,
+                                  size: 30,
+                                )
                               : ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: isUnlocked
@@ -294,9 +357,12 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                                     if (isUnlocked) {
                                       currentThemeIndex.value = i;
                                       await DataManager.setTheme(i);
-                                      if (context.mounted) Navigator.pop(context);
+                                      if (context.mounted)
+                                        Navigator.pop(context);
                                     } else if (coins >= gameThemes[i].price) {
-                                      bool success = await DataManager.useCoins(gameThemes[i].price);
+                                      bool success = await DataManager.useCoins(
+                                        gameThemes[i].price,
+                                      );
                                       if (success) {
                                         await DataManager.unlockTheme(i);
                                         await DataManager.setTheme(i);
@@ -305,13 +371,18 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                                           coins -= gameThemes[i].price;
                                           unlocked.add(i);
                                         });
-                                        if (context.mounted) Navigator.pop(context);
+                                        if (context.mounted)
+                                          Navigator.pop(context);
                                       }
                                     } else {
                                       if (context.mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           const SnackBar(
-                                            content: Text('Tangalar yetarli emas!'),
+                                            content: Text(
+                                              'Tangalar yetarli emas!',
+                                            ),
                                             backgroundColor: Colors.redAccent,
                                           ),
                                         );

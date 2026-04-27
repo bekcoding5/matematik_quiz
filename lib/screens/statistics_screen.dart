@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:matematik_quiz/class/data_manager.dart';
+import 'package:matematik_quiz/widgets/ad_banner_widget.dart';
 import 'package:matematik_quiz/widgets/gradient_scaffold.dart';
 
 class StatisticsScreen extends StatefulWidget {
@@ -100,6 +101,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ],
               ),
               const SizedBox(height: 30),
+                Align(
+                        alignment: AlignmentGeometry.bottomCenter,
+                        child: AdBanner(),
+                      ),
             ],
           ),
         ),

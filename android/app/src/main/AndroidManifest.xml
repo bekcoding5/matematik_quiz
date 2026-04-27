@@ -3,6 +3,9 @@
         android:label="matematik_quiz"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-7707631696231474~8962602471"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
