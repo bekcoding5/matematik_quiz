@@ -89,7 +89,9 @@ class MainScreen extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const SetupScreen(),
+                              builder: (_) => SetupScreen(
+                                gradient_colors: gameThemes[themeIndex].colors,
+                              ),
                             ),
                           );
                         },
@@ -379,8 +381,19 @@ class _ThemeShopSheetState extends State<_ThemeShopSheet> {
                                         ScaffoldMessenger.of(
                                           context,
                                         ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
+                                          SnackBar(
+                                            duration: Duration(seconds: 2),
+                                            behavior: SnackBarBehavior.floating,
+                                            margin: EdgeInsets.only(
+                                              bottom:
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.height -
+                                                  120,
+                                              left: 20,
+                                              right: 20,
+                                            ),
+                                            content: const Text(
                                               'Tangalar yetarli emas!',
                                             ),
                                             backgroundColor: Colors.redAccent,

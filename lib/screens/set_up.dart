@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:matematik_quiz/class/theme_item.dart';
 import 'package:matematik_quiz/main.dart';
 import 'package:matematik_quiz/screens/game.dart';
 import 'package:matematik_quiz/widgets/ad_banner_widget.dart';
@@ -7,7 +8,8 @@ import 'package:matematik_quiz/widgets/glass_box.dart';
 import 'package:matematik_quiz/widgets/gradient_scaffold.dart';
 
 class SetupScreen extends StatefulWidget {
-  const SetupScreen({super.key});
+  final List<Color> gradient_colors;
+  const SetupScreen({required this.gradient_colors, super.key});
 
   @override
   State<SetupScreen> createState() => _SetupScreenState();
@@ -27,7 +29,6 @@ class _SetupScreenState extends State<SetupScreen> {
           style: TextStyle(letterSpacing: 3, fontWeight: FontWeight.w900),
         ),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
         elevation: 0,
       ),
       child: SafeArea(
@@ -58,9 +59,8 @@ class _SetupScreenState extends State<SetupScreen> {
               const Spacer(),
               _startBtn(context),
               const SizedBox(height: 30),
-                AdBanner(),
+              AdBanner(),
               const SizedBox(height: 10),
-
             ],
           ),
         ),
@@ -78,11 +78,8 @@ class _SetupScreenState extends State<SetupScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => GameScreen(
-              diff: _diff,
-              time: _time,
-              totalQuestions: _count,
-            ),
+            builder: (_) =>
+                GameScreen(diff: _diff, time: _time, totalQuestions: _count),
           ),
         );
       },
@@ -93,7 +90,11 @@ class _SetupScreenState extends State<SetupScreen> {
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.play_arrow_rounded, color: Colors.cyanAccent, size: 28),
+              Icon(
+                Icons.play_arrow_rounded,
+                color: Colors.cyanAccent,
+                size: 28,
+              ),
               SizedBox(width: 10),
               Text(
                 'START GAME',
@@ -140,7 +141,10 @@ class _SetupScreenState extends State<SetupScreen> {
                   onTap: () => onS(o),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? Colors.cyanAccent.withOpacity(0.25)
@@ -156,8 +160,9 @@ class _SetupScreenState extends State<SetupScreen> {
                       '$o',
                       style: TextStyle(
                         color: isSelected ? Colors.cyanAccent : Colors.white70,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         fontSize: 15,
                       ),
                     ),
